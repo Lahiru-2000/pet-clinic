@@ -1,0 +1,126 @@
+<div class="container mt-4">
+  <h2>Pet Profile</h2>
+
+  <!-- 🔎 Search Form -->
+  <form class="row g-3 mb-4" (ngSubmit)="searchPet()">
+    <div class="col-md-4">
+      <input type="text" class="form-control" placeholder="Pet Name" [(ngModel)]="search.petname" name="petname" required>
+    </div>
+    <div class="col-md-4">
+      <input type="text" class="form-control" placeholder="Owner Name" [(ngModel)]="search.owner" name="owner" required>
+    </div>
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-primary w-100">Search Pet</button>
+    </div>
+  </form>
+
+  <!-- ➕ Button to Add New Pet -->
+  <div class="mb-4 text-end">
+    <button class="btn btn-success" (click)="openAddPetModal()">+ Add New Pet</button>
+  </div>
+
+  <!-- 🐾 Pet Cards -->
+  <div class="row">
+    <div class="col-md-4 mb-4" *ngFor="let pet of pets">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ pet.name }}</h5>
+          <p class="card-text"><strong>Species:</strong> {{ pet.type }}</p>
+          <p class="card-text"><strong>Breed:</strong> {{ pet.breed }}</p>
+          <p class="card-text"><strong>Age:</strong> {{ pet.age }}</p>
+          <p class="card-text"><strong>Owner:</strong> {{ pet.owner }}</p>
+          <button class="btn btn-primary btn-sm" (click)="startEdit(pet)">Edit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ➕ Add Pet Modal -->
+  <div class="modal fade" id="addPetModal" tabindex="-1" aria-labelledby="addPetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form (ngSubmit)="addPet()">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addPetModalLabel">Add New Pet</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeAddPetModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Name</label>
+                <input class="form-control" [(ngModel)]="newPet.name" name="name" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Species</label>
+                <input class="form-control" [(ngModel)]="newPet.type" name="type" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Breed</label>
+                <input class="form-control" [(ngModel)]="newPet.breed" name="breed" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Age</label>
+                <input type="number" class="form-control" [(ngModel)]="newPet.age" name="age" required />
+              </div>
+              <div class="col-12 mb-3">
+                <label class="form-label">Owner</label>
+                <input class="form-control" [(ngModel)]="newPet.owner" name="owner" readonly 
+                       title="Owner is automatically set to your email address" />
+                <small class="form-text text-muted">Owner is automatically set to your email address</small>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Add Pet</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="closeAddPetModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✏️ Edit Pet Modal -->
+  <div class="modal fade" id="editPetModal" tabindex="-1" aria-labelledby="editPetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form (ngSubmit)="saveEdit()">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editPetModalLabel">Edit Pet</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="cancelEdit()"></button>
+          </div>
+          <div class="modal-body" *ngIf="selectedPet">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Name</label>
+                <input class="form-control" [(ngModel)]="selectedPet.name" name="edit_name" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Species</label>
+                <input class="form-control" [(ngModel)]="selectedPet.type" name="edit_type" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Breed</label>
+                <input class="form-control" [(ngModel)]="selectedPet.breed" name="edit_breed" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Age</label>
+                <input type="number" class="form-control" [(ngModel)]="selectedPet.age" name="edit_age" required />
+              </div>
+              <div class="col-12 mb-3">
+                <label class="form-label">Owner</label>
+                <input class="form-control" [(ngModel)]="selectedPet.owner" name="edit_owner" readonly 
+                       title="Owner cannot be changed" />
+                <small class="form-text text-muted">Owner cannot be changed</small>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Save</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>

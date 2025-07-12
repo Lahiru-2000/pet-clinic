@@ -1,0 +1,11 @@
+<tr *ngFor="let appt of appointments">
+  <td>{{ appt.name }}</td>
+  <td>{{ appt.date }}</td>
+  <td>{{ appt.docname }}</td>
+  <td>{{ appt.status }}</td>
+  <td>
+    <button (click)="changeStatus(appt.id, 'accepted')" [disabled]="appt.status !== 'pending'">Accept</button>
+    <button (click)="changeStatus(appt.id, 'declined')" [disabled]="appt.status !== 'pending'">Decline</button>
+  </td>
+</tr>
+

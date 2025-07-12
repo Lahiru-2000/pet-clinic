@@ -1,0 +1,37 @@
+<div class="container mt-3">
+  <h2>Appointments</h2>
+
+  <table class="table table-striped mt-3" *ngIf="appointments.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Pet Name</th>
+        <th>Owner</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let appointment of appointments">
+        <td>{{ appointment.id }}</td>
+        <td>{{ appointment.pet_name }}</td>
+        <td>{{ appointment.owner_name }}</td>
+        <td>{{ appointment.date }}</td>
+        <td>{{ appointment.status }}</td>
+        <td>
+          <button class="btn btn-success btn-sm" (click)="acceptAppointment(appointment.id)" [disabled]="appointment.status === 'accepted'">
+            Accept
+          </button>
+          <button class="btn btn-danger btn-sm" (click)="declineAppointment(appointment.id)" [disabled]="appointment.status === 'declined'">
+            Decline
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="appointments.length === 0">
+    No appointments found.
+  </div>
+</div>

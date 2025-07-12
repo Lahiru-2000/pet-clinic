@@ -1,0 +1,380 @@
+<!-- ADMIN DASHBOARD -->
+<div class="container mt-4 admin-dashboard" *ngIf="isAdmin">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+      <i class="bi bi-speedometer2 me-2"></i>
+      Admin Dashboard
+    </h2>
+    <button class="btn btn-outline-primary" (click)="refreshDashboard()">
+      <i class="bi bi-arrow-clockwise me-2"></i>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card stat-card bg-primary text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="card-title mb-0">{{ adminStats.totalUsers }}</h4>
+              <p class="card-text">Total Users</p>
+            </div>
+            <i class="bi bi-people-fill fs-1 opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card stat-card bg-success text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="card-title mb-0">{{ adminStats.todayAppointments }}</h4>
+              <p class="card-text">Today's Appointments</p>
+            </div>
+            <i class="bi bi-calendar-check-fill fs-1 opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card stat-card bg-warning text-dark">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="card-title mb-0">{{ adminStats.pendingAppointments }}</h4>
+              <p class="card-text">Pending Appointments</p>
+            </div>
+            <i class="bi bi-clock-fill fs-1 opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card stat-card bg-info text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="card-title mb-0">{{ adminStats.totalPets }}</h4>
+              <p class="card-text">Total Pets</p>
+            </div>
+            <i class="bi bi-heart-fill fs-1 opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Appointments -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <span>
+            <i class="bi bi-calendar-day me-2"></i>
+            Today's Appointments
+          </span>
+          <span class="badge bg-light text-primary" *ngIf="todayAppointments.length > 0">
+            {{ todayAppointments.length }}
+          </span>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="isLoadingAppointments" class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading today's appointments...</p>
+          </div>
+          
+          <div class="table-responsive" *ngIf="!isLoadingAppointments">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Time</th>
+                  <th>Pet Name</th>
+                  <th>Owner</th>
+                  <th>Doctor</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let appt of todayAppointments">
+                  <td>
+                    <strong>{{ appt.time }}</strong>
+                  </td>
+                  <td>
+                    <i class="bi bi-heart text-danger me-2"></i>
+                    {{ appt.petname }}
+                  </td>
+                  <td>
+                    <i class="bi bi-person me-2"></i>
+                    {{ appt.name }}
+                    <br>
+                    <small class="text-muted">{{ appt.email }}</small>
+                  </td>
+                  <td>
+                    <i class="bi bi-person-badge me-2"></i>
+                    {{ appt.docname }}
+                  </td>
+                  <td>
+                    <i class="bi bi-telephone me-2"></i>
+                    {{ appt.contactNumber || 'N/A' }}
+                  </td>
+                  <td>
+                    <span [ngClass]="getStatusBadgeClass(appt.status)">
+                      {{ appt.status | titlecase }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button 
+                        class="btn btn-outline-success" 
+                        (click)="updateAppointmentStatus(appt.id, 'confirmed')"
+                        [disabled]="appt.status === 'confirmed'"
+                        title="Confirm Appointment">
+                        <i class="bi bi-check-circle"></i>
+                      </button>
+                      <button 
+                        class="btn btn-outline-primary" 
+                        (click)="updateAppointmentStatus(appt.id, 'completed')"
+                        [disabled]="appt.status === 'completed'"
+                        title="Mark as Completed">
+                        <i class="bi bi-check2-all"></i>
+                      </button>
+                      <button 
+                        class="btn btn-outline-danger" 
+                        (click)="updateAppointmentStatus(appt.id, 'cancelled')"
+                        [disabled]="appt.status === 'cancelled'"
+                        title="Cancel Appointment">
+                        <i class="bi bi-x-circle"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="todayAppointments.length === 0">
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="bi bi-calendar-x me-2"></i>
+                    No appointments scheduled for today.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Notifications -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+          <span>
+            <i class="bi bi-bell-fill me-2"></i>
+            Admin Notifications
+          </span>
+          <span class="badge bg-dark" *ngIf="adminNotifications.length > 0">
+            {{ adminNotifications.length }}
+          </span>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="isLoadingNotifications" class="text-center p-4">
+            <div class="spinner-border text-warning" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading notifications...</p>
+          </div>
+
+          <ul class="list-group list-group-flush" *ngIf="!isLoadingNotifications">
+            <li *ngFor="let notification of adminNotifications; let i = index" 
+                class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="d-flex align-items-start flex-grow-1">
+                <i [ngClass]="{
+                  'bi bi-info-circle-fill text-info': notification.type === 'info',
+                  'bi bi-exclamation-triangle-fill text-danger': notification.type === 'alert',
+                  'bi bi-bell-fill text-primary': notification.type === 'reminder',
+                  'bi bi-calendar-check-fill text-success': notification.type === 'appointment'
+                }" class="me-3 mt-1"></i>
+                <div class="flex-grow-1">
+                  <p class="mb-1" [ngClass]="{
+                    'text-info': notification.type === 'info',
+                    'text-danger': notification.type === 'alert',
+                    'text-primary': notification.type === 'reminder',
+                    'text-success': notification.type === 'appointment'
+                  }">
+                    {{ notification.message }}
+                  </p>
+                  <small class="text-muted">
+                    <i class="bi bi-clock me-1"></i>{{ notification.date }}
+                    <span *ngIf="notification.userName" class="ms-2">
+                      <i class="bi bi-person me-1"></i>{{ notification.userName }}
+                    </span>
+                  </small>
+                </div>
+              </div>
+              <div class="d-flex align-items-center">
+                <span *ngIf="notification.priority" 
+                      [ngClass]="getPriorityBadgeClass(notification.priority)" 
+                      class="me-2">
+                  {{ notification.priority | titlecase }}
+                </span>
+                <span [ngClass]="{
+                  'badge bg-info': notification.type === 'info',
+                  'badge bg-danger': notification.type === 'alert',
+                  'badge bg-primary': notification.type === 'reminder',
+                  'badge bg-success': notification.type === 'appointment'
+                }" class="me-2">
+                  {{ notification.type | titlecase }}
+                </span>
+                <button class="btn btn-sm btn-outline-secondary" 
+                        (click)="markAdminNotificationAsRead(notification, i)" 
+                        title="Dismiss notification">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+            </li>
+            <li *ngIf="adminNotifications.length === 0" class="list-group-item text-center text-muted py-4">
+              <i class="bi bi-bell-slash me-2"></i>
+              No admin notifications at this time.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT DASHBOARD (Original) -->
+<div class="container mt-4" *ngIf="!isAdmin">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Dashboard</h2>
+    <button class="btn btn-outline-primary" (click)="refreshDashboard()">
+      <i class="bi bi-arrow-clockwise me-2"></i>
+      Refresh
+    </button>
+  </div>
+
+  <div class="row mb-4">
+    <!-- Upcoming Appointments -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          Upcoming Appointments
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Pet</th>
+                <th>Owner</th>
+                <th>Doctor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let appt of upcomingAppointments">
+                <td>{{ appt.date }}</td>
+                <td>{{ appt.time }}</td>
+                <td>{{ appt.petname }}</td>
+                <td>{{ appt.name }}</td>
+                <td>{{ appt.docname }}</td>
+              </tr>
+              <tr *ngIf="upcomingAppointments.length === 0">
+                <td colspan="5" class="text-center">No upcoming appointments.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pet Health Summary -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-success text-white">
+          Pet Health Summary
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Pet</th>
+                <th>Last Visit</th>
+                <th>Next Vaccine</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let summary of petHealthSummaries">
+                <td>{{ summary.pet }}</td>
+                <td>{{ summary.lastVisit }}</td>
+                <td>{{ summary.nextVaccine }}</td>
+                <td>{{ summary.notes }}</td>
+              </tr>
+              <tr *ngIf="petHealthSummaries.length === 0">
+                <td colspan="4" class="text-center">No health summary available.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications / Reminders -->
+  <div class="card mt-4">
+    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+      <span>
+        <i class="bi bi-bell-fill me-2"></i>
+        Notifications / Reminders
+      </span>
+      <span class="badge bg-dark" *ngIf="notifications.length > 0">{{ notifications.length }}</span>
+    </div>
+    <div class="card-body p-0">
+      <ul class="list-group list-group-flush">
+        <li *ngFor="let note of notifications; let i = index" class="list-group-item d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center flex-grow-1">
+            <i [ngClass]="{
+              'bi bi-info-circle-fill text-info': note.type === 'info',
+              'bi bi-exclamation-triangle-fill text-danger': note.type === 'alert',
+              'bi bi-bell-fill text-primary': note.type === 'reminder'
+            }" class="me-2"></i>
+            <span [ngClass]="{
+              'text-info': note.type === 'info',
+              'text-danger': note.type === 'alert',
+              'text-primary': note.type === 'reminder'
+            }">
+              {{ note.message }}
+            </span>
+          </div>
+          <div class="d-flex align-items-center">
+            <small class="text-muted me-2">{{ note.date }}</small>
+            <span [ngClass]="{
+              'badge bg-info': note.type === 'info',
+              'badge bg-danger': note.type === 'alert',
+              'badge bg-primary': note.type === 'reminder'
+            }" class="me-2">
+              {{ note.type | titlecase }}
+            </span>
+            <button class="btn btn-sm btn-outline-secondary" (click)="markNotificationAsRead(i)" title="Dismiss notification">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </li>
+        <li *ngIf="notifications.length === 0" class="list-group-item text-center text-muted">
+          <i class="bi bi-bell-slash me-2"></i>
+          No notifications at this time.
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

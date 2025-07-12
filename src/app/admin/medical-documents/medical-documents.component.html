@@ -1,0 +1,414 @@
+<div class="medical-documents-container" *ngIf="!isLoading && pet">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="d-flex justify-content-between align-items-start">
+      <div class="document-info">
+        <div class="d-flex align-items-center mb-3">
+          <button class="btn btn-outline-secondary me-3" (click)="goBack()">
+            <i class="bi bi-arrow-left"></i>
+          </button>
+          <div>
+            <h1 class="page-title">Medical Documents</h1>
+            <p class="page-subtitle">{{ pet.name }} - {{ pet.type }} • {{ pet.breed }}</p>
+          </div>
+        </div>
+        
+        <div class="document-stats">
+          <span class="stat-item">
+            <i class="bi bi-file-earmark"></i>
+            {{ documents.length }} Documents
+          </span>
+          <span class="stat-item">
+            <i class="bi bi-person"></i>
+            {{ pet.ownerName || pet.owner }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="document-actions">
+        <button class="btn btn-primary btn-lg" (click)="openUploadModal()">
+          <i class="bi bi-upload me-2"></i>
+          Upload Document
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-funnel me-2"></i>
+          Filters & Search
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Search</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Document name, description..." 
+              [(ngModel)]="searchTerm"
+              (input)="applyFilters()"
+            >
+          </div>
+          
+          <div class="col-md-4">
+            <label class="form-label">Document Type</label>
+            <select class="form-select" [(ngModel)]="selectedDocumentType" (change)="applyFilters()">
+              <option value="">All Types</option>
+              <option *ngFor="let type of documentTypes" [value]="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-outline-secondary me-2" (click)="clearFilters()">
+              <i class="bi bi-x-circle me-2"></i>
+              Clear Filters
+            </button>
+            <div class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              {{ filteredDocuments.length }} of {{ documents.length }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documents Grid -->
+  <div class="documents-section">
+    <div *ngIf="filteredDocuments.length === 0" class="empty-state">
+      <i class="bi bi-file-earmark display-1 text-muted"></i>
+      <h3>No Documents Found</h3>
+      <p class="text-muted">
+        <span *ngIf="documents.length === 0">No medical documents have been uploaded for this pet yet.</span>
+        <span *ngIf="documents.length > 0">No documents match your current filters.</span>
+      </p>
+      <button class="btn btn-primary" (click)="openUploadModal()" *ngIf="documents.length === 0">
+        <i class="bi bi-upload me-2"></i>
+        Upload First Document
+      </button>
+      <button class="btn btn-outline-secondary" (click)="clearFilters()" *ngIf="documents.length > 0">
+        Clear Filters
+      </button>
+    </div>
+
+    <div class="documents-grid" *ngIf="filteredDocuments.length > 0">
+      <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4" *ngFor="let document of filteredDocuments">
+          <div class="document-card">
+            <div class="document-header">
+              <div class="document-type-icon">
+                <i [class]="'bi ' + getDocumentTypeInfo(document.documentType).icon"></i>
+              </div>
+              <div class="document-type-label">
+                {{ getDocumentTypeInfo(document.documentType).label }}
+              </div>
+            </div>
+            
+            <div class="document-body">
+              <h6 class="document-title" [title]="document.originalFileName">
+                {{ document.originalFileName }}
+              </h6>
+              
+              <div class="document-meta">
+                <div class="meta-item">
+                  <i class="bi bi-calendar3"></i>
+                  <span>{{ formatDate(document.uploadDate) }}</span>
+                </div>
+                <div class="meta-item">
+                  <i class="bi bi-file-earmark"></i>
+                  <span>{{ getFileSize(document.fileSize) }}</span>
+                </div>
+                <div class="meta-item" *ngIf="document.uploadedBy">
+                  <i class="bi bi-person"></i>
+                  <span>{{ document.uploadedBy }}</span>
+                </div>
+              </div>
+              
+              <div class="document-description" *ngIf="document.description">
+                <p>{{ document.description }}</p>
+              </div>
+              
+              <div class="document-tags" *ngIf="document.tags && document.tags.length > 0">
+                <span class="tag" *ngFor="let tag of document.tags">{{ tag }}</span>
+              </div>
+            </div>
+            
+            <div class="document-actions">
+              <button 
+                class="btn btn-sm btn-outline-primary" 
+                (click)="downloadDocument(document)"
+                title="Download"
+              >
+                <i class="bi bi-download"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-outline-info" 
+                (click)="previewDocument(document)"
+                title="Preview"
+                *ngIf="isImageFile(document.fileType) || isPdfFile(document.fileType)"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-outline-danger" 
+                (click)="openDeleteModal(document)"
+                title="Delete"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="isLoading" class="loading-container">
+  <div class="text-center">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3">Loading medical documents...</p>
+  </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadModalLabel">
+          <i class="bi bi-upload me-2"></i>
+          Upload Medical Document
+        </h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeUploadModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="uploadDocument()">
+          <!-- File Upload Section -->
+          <div class="upload-section">
+            <h6><i class="bi bi-file-earmark me-2"></i>Select File</h6>
+            
+            <div 
+              class="upload-area"
+              [class.drag-over]="isDragOver"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+            >
+              <div *ngIf="!uploadForm.file" class="upload-placeholder">
+                <i class="bi bi-cloud-upload"></i>
+                <h5>Drag & Drop Files Here</h5>
+                <p>or click to browse</p>
+                <input 
+                  type="file" 
+                  class="file-input" 
+                  (change)="onFileSelected($event)"
+                  accept=".pdf,.jpg,.jpeg,.png,.gif,.bmp,.webp,.doc,.docx"
+                >
+                <div class="file-info">
+                  <small class="text-muted">
+                    Supported formats: PDF, Images (JPG, PNG, GIF, BMP, WebP), Word Documents
+                    <br>
+                    Maximum size: 10MB
+                  </small>
+                </div>
+              </div>
+              
+              <div *ngIf="uploadForm.file" class="file-selected">
+                <div class="file-info-card">
+                  <div class="file-icon">
+                    <i [class]="'bi ' + getFileIcon(uploadForm.file.type)"></i>
+                  </div>
+                  <div class="file-details">
+                    <h6>{{ uploadForm.file.name }}</h6>
+                    <p class="text-muted">{{ getFileSize(uploadForm.file.size) }}</p>
+                  </div>
+                  <button 
+                    type="button" 
+                    class="btn btn-sm btn-outline-danger" 
+                    (click)="removeFile()"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Information -->
+          <div class="document-info-section">
+            <h6><i class="bi bi-info-circle me-2"></i>Document Information</h6>
+            
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Document Type *</label>
+                <select 
+                  class="form-select" 
+                  [(ngModel)]="uploadForm.documentType" 
+                  name="documentType" 
+                  required
+                >
+                  <option *ngFor="let type of documentTypes" [value]="type.value">
+                    {{ type.label }}
+                  </option>
+                </select>
+              </div>
+              
+              <div class="col-md-6">
+                <label class="form-label">Related Visit ID</label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [(ngModel)]="uploadForm.relatedVisitId" 
+                  name="relatedVisitId"
+                  placeholder="Optional"
+                >
+              </div>
+              
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea 
+                  class="form-control" 
+                  [(ngModel)]="uploadForm.description" 
+                  name="description" 
+                  rows="3"
+                  placeholder="Brief description of the document..."
+                ></textarea>
+              </div>
+              
+              <div class="col-12">
+                <label class="form-label">Tags</label>
+                <div class="tags-input-container">
+                  <div class="tags-display" *ngIf="uploadForm.tags.length > 0">
+                    <span 
+                      class="tag" 
+                      *ngFor="let tag of uploadForm.tags"
+                      (click)="removeTag(tag)"
+                    >
+                      {{ tag }}
+                      <i class="bi bi-x"></i>
+                    </span>
+                  </div>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    placeholder="Add tags (press Enter or comma to add)"
+                    (keydown)="onTagKeyDown($event, tagInput)"
+                    #tagInput
+                  >
+                </div>
+                <small class="form-text text-muted">
+                  Add tags to help categorize and search documents
+                </small>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeUploadModal()">Cancel</button>
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="uploadDocument()"
+          [disabled]="isUploading || !uploadForm.file"
+        >
+          <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          {{ isUploading ? 'Uploading...' : 'Upload Document' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="previewModalLabel" *ngIf="currentDocument">
+          <i class="bi bi-eye me-2"></i>
+          {{ currentDocument.originalFileName }}
+        </h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closePreviewModal()"></button>
+      </div>
+      <div class="modal-body text-center" *ngIf="currentDocument">
+        <div *ngIf="isImageFile(currentDocument.fileType)">
+          <img 
+            [src]="currentDocument.filePath" 
+            [alt]="currentDocument.originalFileName"
+            class="img-fluid preview-image"
+          >
+        </div>
+        <div *ngIf="isPdfFile(currentDocument.fileType)">
+          <iframe 
+            [src]="currentDocument.filePath" 
+            class="pdf-preview"
+            frameborder="0"
+          ></iframe>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closePreviewModal()">Close</button>
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="downloadDocument(currentDocument!)"
+        >
+          <i class="bi bi-download me-2"></i>
+          Download
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger" id="deleteModalLabel">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Delete Document
+        </h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeDeleteModal()"></button>
+      </div>
+      <div class="modal-body" *ngIf="currentDocument">
+        <p>Are you sure you want to delete this document? This action cannot be undone.</p>
+        <div class="document-info-card">
+          <div class="d-flex align-items-center">
+            <div class="document-icon me-3">
+              <i [class]="'bi ' + getDocumentTypeInfo(currentDocument.documentType).icon"></i>
+            </div>
+            <div>
+              <h6 class="mb-1">{{ currentDocument.originalFileName }}</h6>
+              <p class="mb-1 text-muted">{{ getDocumentTypeInfo(currentDocument.documentType).label }}</p>
+              <small class="text-muted">
+                {{ formatDate(currentDocument.uploadDate) }} • {{ getFileSize(currentDocument.fileSize) }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="deleteDocument()">
+          <i class="bi bi-trash me-2"></i>
+          Delete Document
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

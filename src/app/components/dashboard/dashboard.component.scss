@@ -1,0 +1,333 @@
+// Card shadow and border
+.card {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+  border-radius: 12px;
+  border: none;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+  letter-spacing: 0.5px;
+  border-bottom: none;
+}
+
+// Admin Statistics Cards
+.stat-card {
+  border: none;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+.stat-card .card-body {
+  padding: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-card .card-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-card .card-text {
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.9;
+  margin-bottom: 0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.stat-card i {
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+// Enhanced Background Colors for Stat Cards
+.stat-card.bg-primary {
+  background: linear-gradient(135deg, #4154f1 0%, #2c3cdd 100%);
+}
+
+.stat-card.bg-success {
+  background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+}
+
+.stat-card.bg-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+}
+
+.stat-card.bg-info {
+  background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+}
+
+// Table Styles
+.table th, .table td {
+  vertical-align: middle;
+  border-color: rgba(0,0,0,0.05);
+}
+
+.table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #495057;
+}
+
+.table tr:hover {
+  background: #f1f7ff;
+  transition: background 0.2s;
+}
+
+.table-responsive {
+  border-radius: 0 0 12px 12px;
+}
+
+// Badge Styles
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.5em 0.75em;
+  border-radius: 8px;
+}
+
+// Button Group Styles
+.btn-group-sm .btn {
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 6px;
+}
+
+.btn-group-sm .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+// Loading States
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.3em;
+}
+
+// Notification icon colors
+.text-primary i {
+  color: #0d6efd;
+}
+.text-info i {
+  color: #17a2b8;
+}
+.text-danger i {
+  color: #dc3545;
+}
+.text-success i {
+  color: #198754;
+}
+
+// Notification list
+.list-group-item {
+  font-size: 1rem;
+  padding: 1rem 1.25rem;
+  border-color: rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+.list-group-item:first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.list-group-item:last-child {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+// Dashboard title
+h2 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: #4154f1;
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+}
+
+// Admin Dashboard Specific Styles
+.admin-dashboard h2 {
+  background: linear-gradient(135deg, #4154f1 0%, #2c3cdd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+}
+
+// Enhanced Card Headers
+.card-header.bg-primary {
+  background: linear-gradient(135deg, #4154f1 0%, #2c3cdd 100%) !important;
+  border-bottom: none;
+}
+
+.card-header.bg-success {
+  background: linear-gradient(135deg, #198754 0%, #146c43 100%) !important;
+  border-bottom: none;
+}
+
+.card-header.bg-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%) !important;
+  border-bottom: none;
+}
+
+.card-header.bg-info {
+  background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%) !important;
+  border-bottom: none;
+}
+
+// Action Buttons
+.btn-outline-success:hover {
+  background-color: #198754;
+  border-color: #198754;
+  transform: translateY(-1px);
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  transform: translateY(-1px);
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  transform: translateY(-1px);
+}
+
+// Responsive tweaks
+@media (max-width: 991px) {
+  .row > .col-md-6 {
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card .card-title {
+    font-size: 2rem;
+  }
+  
+  .btn-group-sm .btn {
+    padding: 0.25rem 0.375rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .stat-card .card-title {
+    font-size: 1.75rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .btn-group .btn {
+    border-radius: 6px !important;
+  }
+}
+
+// Custom Scrollbar for Notifications
+.list-group {
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #dee2e6 transparent;
+}
+
+.list-group::-webkit-scrollbar {
+  width: 6px;
+}
+
+.list-group::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list-group::-webkit-scrollbar-thumb {
+  background-color: #dee2e6;
+  border-radius: 3px;
+}
+
+.list-group::-webkit-scrollbar-thumb:hover {
+  background-color: #adb5bd;
+}
+
+// Animation for loading states
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.loading-placeholder {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+// Enhanced focus states
+.btn:focus,
+.btn-outline-success:focus,
+.btn-outline-primary:focus,
+.btn-outline-danger:focus {
+  box-shadow: 0 0 0 0.2rem rgba(65, 84, 241, 0.25);
+}
+
+// Priority indicators
+.badge.bg-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+}
+
+.badge.bg-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+}
+
+.badge.bg-info {
+  background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%) !important;
+} 

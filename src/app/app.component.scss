@@ -1,0 +1,10 @@
+.main-layout {
+  display: flex;
+}
+app-sidebar {
+  width: 250px;
+}
+.content-area {
+  flex: 1;
+  padding: 20px;
+}

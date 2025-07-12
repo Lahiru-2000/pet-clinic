@@ -1,0 +1,841 @@
+<!-- Admin Clients Management -->
+<div class="admin-clients-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <i class="bi bi-people-fill me-3"></i>
+        Client Management
+      </h1>
+      <p class="page-description">Manage pet owners, their contact information, and pets owned</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        class="btn btn-success btn-lg"
+        (click)="openCreateModal()"
+        [disabled]="isLoading">
+        <i class="bi bi-plus-circle me-2"></i>
+        Add New Client
+      </button>
+      <button 
+        class="btn btn-outline-primary btn-lg"
+        (click)="exportClients()"
+        [disabled]="isExporting">
+        <i class="bi bi-download me-2"></i>
+        <span *ngIf="!isExporting">Export</span>
+        <span *ngIf="isExporting">Exporting...</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filters-header">
+      <h3>
+        <i class="bi bi-funnel me-2"></i>
+        Filters & Search
+      </h3>
+      <button 
+        class="btn btn-outline-secondary"
+        (click)="clearFilters()"
+        [disabled]="isLoading">
+        <i class="bi bi-x-circle me-1"></i>
+        Clear All
+      </button>
+    </div>
+    
+    <div class="filters-grid">
+      <!-- Search -->
+      <div class="filter-group">
+        <label class="form-label">Search Clients</label>
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="bi bi-search"></i>
+          </span>
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Search by name or email..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()">
+        </div>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <label class="form-label">Status</label>
+        <select 
+          class="form-select" 
+          [(ngModel)]="selectedStatus"
+          (change)="applyFilters()">
+          <option [ngValue]="null">All Statuses</option>
+          <option [ngValue]="true">Active</option>
+          <option [ngValue]="false">Inactive</option>
+        </select>
+      </div>
+
+      <!-- City Filter -->
+      <div class="filter-group">
+        <label class="form-label">City</label>
+        <select 
+          class="form-select" 
+          [(ngModel)]="selectedCity"
+          (change)="applyFilters()">
+          <option value="">All Cities</option>
+          <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+        </select>
+      </div>
+
+      <!-- State Filter -->
+      <div class="filter-group">
+        <label class="form-label">State</label>
+        <select 
+          class="form-select" 
+          [(ngModel)]="selectedState"
+          (change)="applyFilters()">
+          <option value="">All States</option>
+          <option *ngFor="let state of states" [value]="state">{{ state }}</option>
+        </select>
+      </div>
+
+      <!-- Contact Method Filter -->
+      <div class="filter-group">
+        <label class="form-label">Preferred Contact</label>
+        <select 
+          class="form-select" 
+          [(ngModel)]="selectedContactMethod"
+          (change)="applyFilters()">
+          <option value="">All Methods</option>
+          <option *ngFor="let method of contactMethods" [value]="method">
+            {{ method | titlecase }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Has Pets Filter -->
+      <div class="filter-group">
+        <label class="form-label">Pet Ownership</label>
+        <select 
+          class="form-select" 
+          [(ngModel)]="hasPets"
+          (change)="applyFilters()">
+          <option [ngValue]="null">All Clients</option>
+          <option [ngValue]="true">Has Pets</option>
+          <option [ngValue]="false">No Pets</option>
+        </select>
+      </div>
+
+      <!-- Registration Date Range -->
+      <div class="filter-group">
+        <label class="form-label">Registration Date From</label>
+        <input 
+          type="date" 
+          class="form-control" 
+          [(ngModel)]="registrationDateFrom"
+          (change)="applyFilters()">
+      </div>
+
+      <div class="filter-group">
+        <label class="form-label">Registration Date To</label>
+        <input 
+          type="date" 
+          class="form-control" 
+          [(ngModel)]="registrationDateTo"
+          (change)="applyFilters()">
+      </div>
+
+      <!-- Visit Count Range -->
+      <div class="filter-group">
+        <label class="form-label">Min Visits</label>
+        <input 
+          type="number" 
+          class="form-control" 
+          placeholder="0"
+          [(ngModel)]="minVisits"
+          (change)="applyFilters()"
+          min="0">
+      </div>
+
+      <div class="filter-group">
+        <label class="form-label">Max Visits</label>
+        <input 
+          type="number" 
+          class="form-control" 
+          placeholder="100"
+          [(ngModel)]="maxVisits"
+          (change)="applyFilters()"
+          min="0">
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Summary -->
+  <div class="results-summary">
+    <div class="summary-info">
+      <span class="results-count">
+        Showing {{ filteredClients.length }} of {{ totalItems }} clients
+      </span>
+      <span class="page-info">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading clients...</span>
+      </div>
+      <p class="loading-text">Loading clients...</p>
+    </div>
+  </div>
+
+  <!-- Clients Grid -->
+  <div *ngIf="!isLoading" class="clients-grid">
+    <div 
+      *ngFor="let client of filteredClients" 
+      class="client-card"
+      [class.inactive]="!client.isActive">
+      
+      <!-- Client Header -->
+      <div class="client-header">
+        <div class="client-avatar">
+          <i class="bi bi-person-circle"></i>
+        </div>
+        <div class="client-info">
+          <h4 class="client-name">{{ client.name }}</h4>
+          <p class="client-email">{{ client.email }}</p>
+          <span [class]="getStatusBadgeClass(client.isActive)">
+            {{ getStatusText(client.isActive) }}
+          </span>
+        </div>
+        <div class="client-actions">
+          <div class="dropdown">
+            <button 
+              class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+              type="button" 
+              [id]="'clientActions' + client.id"
+              data-bs-toggle="dropdown" 
+              aria-expanded="false">
+              <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu" [attr.aria-labelledby]="'clientActions' + client.id">
+              <li>
+                <a class="dropdown-item" (click)="viewClientDetails(client)">
+                  <i class="bi bi-eye me-2"></i>View Details
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" (click)="openEditModal(client)">
+                  <i class="bi bi-pencil me-2"></i>Edit Client
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" (click)="manageClientPets(client)">
+                  <i class="bi bi-heart me-2"></i>Manage Pets
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" (click)="viewClientVisitHistory(client)">
+                  <i class="bi bi-clock-history me-2"></i>Visit History
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item text-danger" (click)="openDeleteModal(client)">
+                  <i class="bi bi-trash me-2"></i>Delete Client
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Client Details -->
+      <div class="client-details">
+        <div class="detail-row">
+          <i class="bi bi-telephone me-2"></i>
+          <span>{{ formatPhone(client.phone) }}</span>
+        </div>
+        <div class="detail-row">
+          <i class="bi bi-geo-alt me-2"></i>
+          <span>{{ client.city }}, {{ client.state }}</span>
+        </div>
+        <div class="detail-row">
+          <i [class]="getContactMethodIcon(client.preferredContactMethod) + ' me-2'"></i>
+          <span>{{ client.preferredContactMethod | titlecase }}</span>
+        </div>
+        <div class="detail-row">
+          <i class="bi bi-calendar-event me-2"></i>
+          <span>Registered: {{ formatDate(client.registrationDate) }}</span>
+        </div>
+      </div>
+
+      <!-- Client Stats -->
+      <div class="client-stats">
+        <div class="stat-item">
+          <span class="stat-value">{{ client.totalPets || 0 }}</span>
+          <span class="stat-label">{{ getTotalPetsText(client.totalPets) }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ client.totalVisits || 0 }}</span>
+          <span class="stat-label">{{ getTotalVisitsText(client.totalVisits) }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ formatDate(client.lastVisit) }}</span>
+          <span class="stat-label">Last Visit</span>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="client-quick-actions">
+        <button 
+          class="btn btn-outline-primary btn-sm"
+          (click)="viewClientDetails(client)">
+          <i class="bi bi-eye me-1"></i>
+          View Details
+        </button>
+        <button 
+          class="btn btn-outline-success btn-sm"
+          (click)="manageClientPets(client)">
+          <i class="bi bi-heart me-1"></i>
+          Pets
+        </button>
+        <button 
+          class="btn btn-outline-info btn-sm"
+          (click)="viewClientVisitHistory(client)">
+          <i class="bi bi-clock-history me-1"></i>
+          History
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredClients.length === 0" class="empty-state">
+    <div class="empty-state-content">
+      <i class="bi bi-people empty-state-icon"></i>
+      <h3>No clients found</h3>
+      <p>There are no clients matching your current filters.</p>
+      <button 
+        class="btn btn-primary"
+        (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && filteredClients.length > 0" class="pagination-container">
+    <nav aria-label="Client pagination">
+      <ul class="pagination pagination-lg justify-content-center">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="onPageChange(1)" [class.disabled]="currentPage === 1">
+            <i class="bi bi-chevron-double-left"></i>
+          </a>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="onPageChange(currentPage - 1)" [class.disabled]="currentPage === 1">
+            <i class="bi bi-chevron-left"></i>
+          </a>
+        </li>
+        
+        <li 
+          *ngFor="let page of paginationPages" 
+          class="page-item" 
+          [class.active]="page === currentPage">
+          <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+        </li>
+        
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <a class="page-link" (click)="onPageChange(currentPage + 1)" [class.disabled]="currentPage === totalPages">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <a class="page-link" (click)="onPageChange(totalPages)" [class.disabled]="currentPage === totalPages">
+            <i class="bi bi-chevron-double-right"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<!-- Create Client Modal -->
+<div class="modal fade" [class.show]="showCreateModal" [style.display]="showCreateModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-person-plus me-2"></i>
+          Add New Client
+        </h5>
+        <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6">
+              <h6 class="section-title">Basic Information</h6>
+              
+              <div class="mb-3">
+                <label class="form-label">Full Name *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="clientForm.name"
+                  name="name"
+                  required>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Email Address *</label>
+                <input 
+                  type="email" 
+                  class="form-control" 
+                  [(ngModel)]="clientForm.email"
+                  name="email"
+                  required>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Phone Number *</label>
+                <input 
+                  type="tel" 
+                  class="form-control" 
+                  [(ngModel)]="clientForm.phone"
+                  name="phone"
+                  required>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Date of Birth</label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  [(ngModel)]="clientForm.dateOfBirth"
+                  name="dateOfBirth">
+              </div>
+            </div>
+            
+            <!-- Address Information -->
+            <div class="col-md-6">
+              <h6 class="section-title">Address Information</h6>
+              
+              <div class="mb-3">
+                <label class="form-label">Street Address</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="clientForm.address"
+                  name="address">
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">City</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      [(ngModel)]="clientForm.city"
+                      name="city">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">State</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      [(ngModel)]="clientForm.state"
+                      name="state">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">ZIP Code</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="clientForm.zipCode"
+                  name="zipCode">
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <!-- Emergency Contact -->
+            <div class="col-md-6">
+              <h6 class="section-title">Emergency Contact</h6>
+              
+              <div class="mb-3">
+                <label class="form-label">Emergency Contact Name</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="clientForm.emergencyContact"
+                  name="emergencyContact">
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Emergency Contact Phone</label>
+                <input 
+                  type="tel" 
+                  class="form-control" 
+                  [(ngModel)]="clientForm.emergencyPhone"
+                  name="emergencyPhone">
+              </div>
+            </div>
+            
+            <!-- Preferences -->
+            <div class="col-md-6">
+              <h6 class="section-title">Contact Preferences</h6>
+              
+              <div class="mb-3">
+                <label class="form-label">Preferred Contact Method</label>
+                <select 
+                  class="form-select" 
+                  [(ngModel)]="clientForm.preferredContactMethod"
+                  name="preferredContactMethod">
+                  <option value="email">Email</option>
+                  <option value="phone">Phone</option>
+                  <option value="sms">SMS</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    [(ngModel)]="clientForm.emailNotifications"
+                    name="emailNotifications"
+                    id="emailNotifications">
+                  <label class="form-check-label" for="emailNotifications">
+                    Email Notifications
+                  </label>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    [(ngModel)]="clientForm.smsNotifications"
+                    name="smsNotifications"
+                    id="smsNotifications">
+                  <label class="form-check-label" for="smsNotifications">
+                    SMS Notifications
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <textarea 
+              class="form-control" 
+              rows="3" 
+              [(ngModel)]="clientForm.notes"
+              name="notes"
+              placeholder="Any additional notes about the client..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeCreateModal()">
+          Cancel
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-success"
+          (click)="createClient()"
+          [disabled]="isCreating || !isValidClientForm()">
+          <span *ngIf="isCreating">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Creating...
+          </span>
+          <span *ngIf="!isCreating">
+            <i class="bi bi-check-circle me-2"></i>
+            Create Client
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Client Modal -->
+<div class="modal fade" [class.show]="showEditModal" [style.display]="showEditModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-pencil me-2"></i>
+          Edit Client: {{ currentClient?.name }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form *ngIf="currentClient">
+          <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6">
+              <h6 class="section-title">Basic Information</h6>
+              
+              <div class="mb-3">
+                <label class="form-label">Full Name *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="editForm.name"
+                  name="editName"
+                  required>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Email Address *</label>
+                <input 
+                  type="email" 
+                  class="form-control" 
+                  [(ngModel)]="editForm.email"
+                  name="editEmail"
+                  required>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Phone Number *</label>
+                <input 
+                  type="tel" 
+                  class="form-control" 
+                  [(ngModel)]="editForm.phone"
+                  name="editPhone"
+                  required>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Date of Birth</label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  [(ngModel)]="editForm.dateOfBirth"
+                  name="editDateOfBirth">
+              </div>
+            </div>
+            
+            <!-- Address Information -->
+            <div class="col-md-6">
+              <h6 class="section-title">Address Information</h6>
+              
+              <div class="mb-3">
+                <label class="form-label">Street Address</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="editForm.address"
+                  name="editAddress">
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">City</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      [(ngModel)]="editForm.city"
+                      name="editCity">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">State</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      [(ngModel)]="editForm.state"
+                      name="editState">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">ZIP Code</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="editForm.zipCode"
+                  name="editZipCode">
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <!-- Emergency Contact -->
+            <div class="col-md-6">
+              <h6 class="section-title">Emergency Contact</h6>
+              
+              <div class="mb-3">
+                <label class="form-label">Emergency Contact Name</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="editForm.emergencyContact"
+                  name="editEmergencyContact">
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Emergency Contact Phone</label>
+                <input 
+                  type="tel" 
+                  class="form-control" 
+                  [(ngModel)]="editForm.emergencyPhone"
+                  name="editEmergencyPhone">
+              </div>
+            </div>
+            
+            <!-- Preferences -->
+            <div class="col-md-6">
+              <h6 class="section-title">Contact Preferences</h6>
+              
+              <div class="mb-3">
+                <label class="form-label">Preferred Contact Method</label>
+                <select 
+                  class="form-select" 
+                  [(ngModel)]="editForm.preferredContactMethod"
+                  name="editPreferredContactMethod">
+                  <option value="email">Email</option>
+                  <option value="phone">Phone</option>
+                  <option value="sms">SMS</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    [(ngModel)]="editForm.emailNotifications"
+                    name="editEmailNotifications"
+                    id="editEmailNotifications">
+                  <label class="form-check-label" for="editEmailNotifications">
+                    Email Notifications
+                  </label>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    [(ngModel)]="editForm.smsNotifications"
+                    name="editSmsNotifications"
+                    id="editSmsNotifications">
+                  <label class="form-check-label" for="editSmsNotifications">
+                    SMS Notifications
+                  </label>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    [(ngModel)]="editForm.isActive"
+                    name="editIsActive"
+                    id="editIsActive">
+                  <label class="form-check-label" for="editIsActive">
+                    Active Client
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <textarea 
+              class="form-control" 
+              rows="3" 
+              [(ngModel)]="editForm.notes"
+              name="editNotes"
+              placeholder="Any additional notes about the client..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">
+          Cancel
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="updateClient()"
+          [disabled]="isUpdating || !isValidEditForm()">
+          <span *ngIf="isUpdating">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Updating...
+          </span>
+          <span *ngIf="!isUpdating">
+            <i class="bi bi-check-circle me-2"></i>
+            Update Client
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Client Modal -->
+<div class="modal fade" [class.show]="showDeleteModal" [style.display]="showDeleteModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Delete Client
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <strong>Warning:</strong> This action cannot be undone.
+        </div>
+        <p>Are you sure you want to delete client <strong>{{ currentClient?.name }}</strong>?</p>
+        <p class="text-muted">This will also remove all associated data including:</p>
+        <ul class="text-muted">
+          <li>Contact information</li>
+          <li>Pet ownership records</li>
+          <li>Visit history</li>
+          <li>Notes and preferences</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="deleteClient()">
+          <i class="bi bi-trash me-2"></i>
+          Delete Client
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div 
+  class="modal-backdrop fade" 
+  [class.show]="showCreateModal || showEditModal || showDeleteModal || showDetailsModal"
+  *ngIf="showCreateModal || showEditModal || showDeleteModal || showDetailsModal">
+</div> 

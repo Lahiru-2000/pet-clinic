@@ -1,0 +1,83 @@
+<app-client-sidebar></app-client-sidebar>
+
+<main id="main" class="main">
+  <section id="update-appointment" class="appointment section-bg">
+    <div class="container">
+      <div class="section-title">
+        <h2>Update Your Appointments</h2>
+      </div>
+
+      <!-- Table for showing all appointments -->
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Appointment Date</th>
+              <th>Pet Name</th>
+              <th>Doctor Name</th>
+              <th>Phone</th>
+              <th>Message</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let appointment of appointments">
+              <td>{{ appointment.date }}</td>
+              <td>{{ appointment.petname }}</td>
+              <td>{{ appointment.docname }}</td>
+              <td>{{ appointment.tp }}</td>
+              <td>{{ appointment.message }}</td>
+              <td>
+                <button (click)="onEdit(appointment)" class="btn btn-sm btn-warning">Edit</button>
+                <button  (click)="onDelete(appointment.id)" class="btn btn-sm btn-danger" style="margin-left: 5px;">Delete</button>
+                <!-- *ngIf="userIsAdmin == 'true'" -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Editable form in a modal popup -->
+      <ng-template #editModal>
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Appointment</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="onUpdate()" role="form" class="php-email-form">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <input type="datetime-local" name="date" class="form-control" [(ngModel)]="editingAppointment.date" required>
+                <div class="invalid-feedback">Please enter a valid date and time.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <input type="text" class="form-control" name="petname" [(ngModel)]="editingAppointment.petname" required>
+                <div class="invalid-feedback">Please enter your pet's name.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <select name="doctor" class="form-select" [(ngModel)]="editingAppointment.docname" required>
+                  <option value="">Select Doctor</option>
+                  <option *ngFor="let doctor of doctors" [value]="doctor.dname">{{ doctor.dname }}</option>
+                </select>
+                <div class="invalid-feedback">Please select a doctor.</div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <input type="tel" class="form-control" name="phone" [(ngModel)]="editingAppointment.tp" required>
+                <div class="invalid-feedback">Please enter your phone number.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <textarea class="form-control" name="message" rows="3" [(ngModel)]="editingAppointment.message"></textarea>
+              </div>
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary">Update Appointment</button>
+            </div>
+          </form>
+        </div>
+      </ng-template>
+    </div>
+  </section>
+</main>
+

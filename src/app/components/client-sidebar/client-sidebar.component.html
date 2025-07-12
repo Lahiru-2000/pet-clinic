@@ -1,0 +1,349 @@
+<header class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <div class="container">
+    <a class="navbar-brand" routerLink="#">
+      <i class="bi bi-heart-pulse me-2"></i>
+      Rajarata Pet Clinic
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <i class="fa-solid fa-user"></i>
+          <a class="nav-link" routerLink="/user-profile">
+            <i class="bi bi-person-circle me-2"></i>
+            {{ username || 'User Name' }}
+            <span *ngIf="isAdmin" class="badge bg-warning text-dark ms-2">Admin</span>
+          </a>
+        </li>
+      </ul>
+      <div>
+        <a (click)="signOut()" class="btn btn-primary appointment-btn loginBtn">
+          <i class="bi bi-box-arrow-right me-2"></i>
+          Sign Out
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ADMIN SIDEBAR -->
+<aside id="sidebar" class="sidebar admin-sidebar" *ngIf="isAdmin">
+  <ul class="sidebar-nav" id="sidebar-nav">
+    
+    <!-- Dashboard Overview -->
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/admin/dashboard">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard Overview</span>
+      </a>
+    </li>
+
+    <!-- Appointment Management -->
+    <li class="nav-item">
+      <a class="nav-link" (click)="toggleAppointmentMgmt()">
+        <i class="bi bi-calendar-check"></i>
+        <span>Appointment Management</span>
+        <i class="bi bi-chevron-down ms-auto" [class.bi-chevron-up]="!isAppointmentMgmtCollapsed"></i>
+      </a>
+      <ul class="nav-content" [ngClass]="{ 'collapse': true, 'show': !isAppointmentMgmtCollapsed }">
+        <li>
+          <a routerLink="/admin/appointments">
+            <i class="bi bi-circle"></i><span>View All Appointments</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/appointments">
+            <i class="bi bi-circle"></i><span>Add New Appointment</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/appointments/calendar">
+            <i class="bi bi-circle"></i><span>Calendar View</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/appointments/status">
+            <i class="bi bi-circle"></i><span>Appointment Status</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Pet Records -->
+    <li class="nav-item">
+      <a class="nav-link" (click)="togglePetRecords()">
+        <i class="bi bi-heart"></i>
+        <span>Pet Records</span>
+        <i class="bi bi-chevron-down ms-auto" [class.bi-chevron-up]="!isPetRecordsCollapsed"></i>
+      </a>
+      <ul class="nav-content" [ngClass]="{ 'collapse': true, 'show': !isPetRecordsCollapsed }">
+        <li>
+          <a routerLink="/admin/pets/all">
+            <i class="bi bi-circle"></i><span>View All Pets</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/pets/add">
+            <i class="bi bi-circle"></i><span>Add New Pet</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/pets/medical-history">
+            <i class="bi bi-circle"></i><span>Medical History</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/pets/vaccinations">
+            <i class="bi bi-circle"></i><span>Vaccination Records</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/pets/documents">
+            <i class="bi bi-circle"></i><span>Medical Documents</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Client Management -->
+    <li class="nav-item">
+      <a class="nav-link" (click)="toggleClientMgmt()">
+        <i class="bi bi-people"></i>
+        <span>Client Management</span>
+        <i class="bi bi-chevron-down ms-auto" [class.bi-chevron-up]="!isClientMgmtCollapsed"></i>
+      </a>
+      <ul class="nav-content" [ngClass]="{ 'collapse': true, 'show': !isClientMgmtCollapsed }">
+        <li>
+          <a routerLink="/admin/clients/all">
+            <i class="bi bi-circle"></i><span>View All Clients</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/clients/add">
+            <i class="bi bi-circle"></i><span>Add New Client</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/clients/visit-history">
+            <i class="bi bi-circle"></i><span>Visit History</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/clients/contact-info">
+            <i class="bi bi-circle"></i><span>Contact Information</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Doctor / Staff Management -->
+    <li class="nav-item">
+      <a class="nav-link" (click)="toggleStaffMgmt()">
+        <i class="bi bi-person-badge"></i>
+        <span>Staff Management</span>
+        <i class="bi bi-chevron-down ms-auto" [class.bi-chevron-up]="!isStaffMgmtCollapsed"></i>
+      </a>
+      <ul class="nav-content" [ngClass]="{ 'collapse': true, 'show': !isStaffMgmtCollapsed }">
+        <li>
+          <a routerLink="/admin/staff/doctors">
+            <i class="bi bi-circle"></i><span>View Doctors</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/staff/add-doctor">
+            <i class="bi bi-circle"></i><span>Add New Doctor</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/staff/schedules">
+            <i class="bi bi-circle"></i><span>Doctor Schedules</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/staff/all">
+            <i class="bi bi-circle"></i><span>All Staff</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Services Management -->
+    <li class="nav-item">
+      <a class="nav-link" (click)="toggleServiceMgmt()">
+        <i class="bi bi-tools"></i>
+        <span>Services Management</span>
+        <i class="bi bi-chevron-down ms-auto" [class.bi-chevron-up]="!isServiceMgmtCollapsed"></i>
+      </a>
+      <ul class="nav-content" [ngClass]="{ 'collapse': true, 'show': !isServiceMgmtCollapsed }">
+        <li>
+          <a routerLink="/admin/services/all">
+            <i class="bi bi-circle"></i><span>View All Services</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/services/add">
+            <i class="bi bi-circle"></i><span>Add New Service</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/services/pricing">
+            <i class="bi bi-circle"></i><span>Service Pricing</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/services/categories">
+            <i class="bi bi-circle"></i><span>Service Categories</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Billing & Invoices -->
+    <li class="nav-item">
+      <a class="nav-link" (click)="toggleBilling()">
+        <i class="bi bi-receipt"></i>
+        <span>Billing & Invoices</span>
+        <i class="bi bi-chevron-down ms-auto" [class.bi-chevron-up]="!isBillingCollapsed"></i>
+      </a>
+      <ul class="nav-content" [ngClass]="{ 'collapse': true, 'show': !isBillingCollapsed }">
+        <li>
+          <a routerLink="/admin/billing/invoices">
+            <i class="bi bi-circle"></i><span>All Invoices</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/billing/generate">
+            <i class="bi bi-circle"></i><span>Generate Invoice</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/billing/payments">
+            <i class="bi bi-circle"></i><span>Payment Tracking</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/billing/unpaid">
+            <i class="bi bi-circle"></i><span>Unpaid Invoices</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Reports -->
+    <li class="nav-item">
+      <a class="nav-link" (click)="toggleReports()">
+        <i class="bi bi-graph-up"></i>
+        <span>Reports</span>
+        <i class="bi bi-chevron-down ms-auto" [class.bi-chevron-up]="!isReportsCollapsed"></i>
+      </a>
+      <ul class="nav-content" [ngClass]="{ 'collapse': true, 'show': !isReportsCollapsed }">
+        <li>
+          <a routerLink="/admin/reports/appointments">
+            <i class="bi bi-circle"></i><span>Appointment Statistics</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/reports/clients">
+            <i class="bi bi-circle"></i><span>Client Visit Frequency</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/reports/earnings">
+            <i class="bi bi-circle"></i><span>Earnings Report</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/reports/pets">
+            <i class="bi bi-circle"></i><span>Pet Statistics</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/reports/services">
+            <i class="bi bi-circle"></i><span>Service Usage</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Settings -->
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/admin/settings">
+        <i class="bi bi-gear"></i>
+        <span>Settings</span>
+      </a>
+    </li>
+
+  </ul>
+</aside>
+
+<!-- CLIENT SIDEBAR -->
+<aside id="sidebar" class="sidebar" *ngIf="!isAdmin">
+  <ul class="sidebar-nav" id="sidebar-nav">
+
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/dashboard">
+        <i class="bi bi-grid"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" (click)="isAppointmentCollapsed = !isAppointmentCollapsed">
+        <i class="bi bi-journal-text"></i>
+        <span>Appointment</span>
+        <i class="bi bi-chevron-down ms-auto" [class.bi-chevron-up]="!isAppointmentCollapsed"></i>
+      </a>
+      <ul class="nav-content" [ngClass]="{ 'collapse': true, 'show': !isAppointmentCollapsed }">
+        <li>
+          <a routerLink="/appointment">
+            <i class="bi bi-circle"></i><span>Create Appointment</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/update-appointment">
+            <i class="bi bi-circle"></i><span>View Appointments</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/profile">
+        <i class="bi bi-heart"></i>
+        <span>Pet Details</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/user-profile">
+        <i class="bi bi-person"></i>
+        <span>My Profile</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/payments">
+        <i class="bi bi-card-list"></i>
+        <span>Invoices & Payments</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/contact">
+        <i class="bi bi-envelope"></i>
+        <span>Contact</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/faq">
+        <i class="bi bi-question-circle"></i>
+        <span>F.A.Q</span>
+      </a>
+    </li>
+
+  </ul>
+</aside>

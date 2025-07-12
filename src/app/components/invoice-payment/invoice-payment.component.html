@@ -1,0 +1,31 @@
+<div class="container mt-4">
+  <h2>Invoices & Payments</h2>
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>Invoice ID</th>
+        <th>Date</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Download</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let invoice of invoices">
+        <td>{{ invoice.id }}</td>
+        <td>{{ invoice.date }}</td>
+        <td>{{ invoice.amount | currency }}</td>
+        <td>
+          <span [ngClass]="{'text-success': invoice.status === 'Paid', 'text-danger': invoice.status === 'Unpaid'}">
+            {{ invoice.status }}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-outline-primary btn-sm" (click)="downloadInvoice(invoice)">
+            <i class="bi bi-download"></i> Download
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

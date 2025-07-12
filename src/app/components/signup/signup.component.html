@@ -1,0 +1,39 @@
+<div class="container mt-5">
+  <h2 class="text-center">Get in touch</h2>
+  <p class="text-center">We'd love to hear from you. Please fill out this form.</p>
+
+  <form (ngSubmit)="onSubmit()" #signupForm="ngForm">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="firstName" class="form-label">First name</label>
+        <input type="text" class="form-control" id="firstName" required [(ngModel)]="firstName" name="firstName" />
+      </div>
+      <div class="col-md-6 mb-3">
+        <label for="lastName" class="form-label">Last name</label>
+        <input type="text" class="form-control" id="lastName" required [(ngModel)]="lastName" name="lastName" />
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" class="form-control" id="email" required [(ngModel)]="email" name="email" />
+    </div>
+
+    <div class="mb-3">
+      <label for="phone" class="form-label">Phone number</label>
+      <input type="tel" class="form-control" id="phone" placeholder="+1 (555) 000-0000" required [(ngModel)]="phone" name="phone" />
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" class="form-control" id="password" required [(ngModel)]="password" name="password" />
+    </div>
+
+    <div class="mb-3">
+      <label for="confirmPassword" class="form-label">Confirm Password</label>
+      <input type="password" class="form-control" id="confirmPassword" required [(ngModel)]="confirmPassword" name="confirmPassword" />
+    </div>
+
+    <button type="submit" class="btn btn-dark w-100" [disabled]="!signupForm.form.valid">Sign Up</button>
+  </form>
+</div>
